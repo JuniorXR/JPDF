@@ -1,0 +1,9 @@
+setup.py
+junior/__init__.py
+junior/database.py
+junior/tablepdf.py
+junior.egg-info/PKG-INFO
+junior.egg-info/SOURCES.txt
+junior.egg-info/dependency_links.txt
+junior.egg-info/requires.txt
+junior.egg-info/top_level.txt
