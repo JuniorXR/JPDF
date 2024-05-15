@@ -1,10 +1,8 @@
 Metadata-Version: 2.1
 Name: junior
 Version: 1.0
-Summary: UNKNOWN
-Home-page: UNKNOWN
+Summary: To create PDF Table Sheets with python using FPDF2 in a more simpler way.
+Home-page: https://github.com/JuniorXR/JPDF
 License: UNKNOWN
-Platform: UNKNOWN
-
-UNKNOWN
+Platform: Platform Indipendent
 
