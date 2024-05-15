@@ -4,8 +4,11 @@ from sympy import sympify
 import json
 
 class TablePDF(FPDF):
-	def __init__(self):
-		super().__init__(unit="pt")
+	def __init__(self,orientationvar=None):
+		if orientationvar:
+			super().__init__(unit="pt",orientation=orientationvar)
+		else:
+			super().__init__(unit="pt")
 
 	def add_table(self, heading_row, data_rows, text_align="CENTER"):
 		self.add_page()
@@ -40,45 +43,36 @@ class TablePDF(FPDF):
 			print(f"Error evaluating expression '{expression}': {e}")
 			return None
 
-	def create_pdf_from_file(self,output_file_name):
-		file_name = output_file_name+'.txt'
+	def create_pdf_from_file(self, output_file_name):
+		file_name = output_file_name + '.txt'
 		file_path = os.path.join(os.getcwd(), file_name)
-		print("Log:file_path -{0}".format(file_path))
-
+		print(f"Log: file_path - {file_path}")
 		try:
 			with open(file_path, 'r') as file:
 				lines = file.readlines()
-
 				heading_row = []
 				data_rows = []
-
-				reading_headings = False
+				print(lines)
 
 				for line in lines:
 					line = line.strip()
+					print(line)
 					if line.startswith('head:'):
-						reading_headings = True
 						headings_line = line[len('head:'):].strip()
 						heading_row = headings_line.split(',')
 					elif line.startswith('body:'):
-						reading_headings = False
 						body_line = line[len('body:'):].strip()
 						data_rows.append(body_line.split(','))
-
-				if reading_headings:
-					# If the last line in the file is headings
-					heading_row = headings_line.split(',')
-
-				# Call add_table with parsed data
+				print("file hasbeen readed!")
+			
 				if heading_row and data_rows:
+            # Call add_table with parsed data
 					self.add_table(heading_row, data_rows)
-					pdf_output_path =f"{output_file_name}.pdf"
-					# file_path.replace('.txt', '_output.pdf')
+					pdf_output_path = f"{output_file_name}.pdf"
 					self.output(pdf_output_path)
 					print(f"PDF created successfully: {pdf_output_path}")
 				else:
-					print("Error: 'head:' or 'body:' sections not found in the file.")
-
+					print("heads:",heading_row,"\nbodys:",data_rows)
 		except Exception as e:
 			print(f"Error: {e}")
 
@@ -92,6 +86,7 @@ class TableContentParser:
 		if content_name:
 			try:
 				self.defaultTableContentFile=open(content_name+".txt","a+")
+				
 			except FileNotFoundError:
 				self.defaultTableContentFile=open("table_contents.txt","a+")
 		self.keys=[]
@@ -114,29 +109,31 @@ class TableContentParser:
 	#this private func will be auto called after the putKeysAndValues() fucntion runs
 	#this function merges the keys and values as a python dict object and returns them into the class variable contents
 		return dict(zip(self.keys,self.values))
-	
+
+
 	def parse(self):
-			try:
-				if self.keys:
-					self.defaultTableContentFile.write("head:")
-					for index, item in enumerate(self.keys):
-						self.defaultTableContentFile.write(item)
-						if index != len(self.keys) - 1:
-							self.defaultTableContentFile.write(',')
-					self.defaultTableContentFile.write("\n")
-				if self.values:
-					self.defaultTableContentFile.write("body:")
-					for index,item in enumerate(self.values):
-						self.defaultTableContentFile.write(item)
-						if index == len(self.keys)-1:
-							self.defaultTableContentFile.write("\nbody:")
-						elif index!=len(self.values)-1:
-							self.defaultTableContentFile.write(',')
-					self.defaultTableContentFile.write("\n")
-						#this if is closed here the else below is from the upper conditional block
-			except Exception as e:
-				return f"Error in creating content file or the final output file: {e}"
-			return "Content Created Successfully!"
+		try:
+			if self.keys:
+				self.defaultTableContentFile.write("head:")
+				self.defaultTableContentFile.write(','.join(self.keys))
+				self.defaultTableContentFile.write("\n")
+			
+			if self.values:
+				num_columns = len(self.keys)
+				for index, item in enumerate(self.values):
+					if index % num_columns == 0:
+						self.defaultTableContentFile.write("body:")
+					self.defaultTableContentFile.write(item)
+					if (index + 1) % num_columns != 0:
+						self.defaultTableContentFile.write(',')
+					else:
+						self.defaultTableContentFile.write('\n')
+			self.closeParser()
+		except Exception as e:
+			return f"Error in creating content file or the final output file: {e}"
+		return "Content Created Successfully!"
+
+
 	def closeParser(self):
 		#This func has to be called before code runs
 		self.defaultTableContentFile.close()
@@ -147,10 +144,12 @@ class Runner:
 E.g. - Runner().run()
 'run()' function takes the file name which will be created and it will be the name of pdf file. If no value is given is the 'run() function' then it will ask in the runtime, so be careful of that!
 '''
-	def run(self,name=None):
+	def run(self,name=None,orientation=None):
 		pdf = TablePDF()
+		if orientation:
+			pdf = TablePDF(orientationvar=orientation)
 		if name:
 			pdf.create_pdf_from_file(name)
 		else:
-			cliName=input("enter file name:")
-			pdf.create_pdf_from_file(cliName)
+			name=input("enter file name:")
+			pdf.create_pdf_from_file(name)
