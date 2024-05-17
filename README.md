@@ -1,3 +1,5 @@
+# New version is at <a href="https://github.com/JuniorXR/junior">here</a>
+
 # Required Classes -
 
 from `junior.tablepdf` import `TableContentParser` as Parser
