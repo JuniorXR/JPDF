@@ -1,4 +1,4 @@
-# New version is at <a href="https://github.com/JuniorXR/junior">here</a>
+# New version is at <a href="https://github.com/JuniorXR/junior">here ❌</a>
 
 # Required Classes -
 
